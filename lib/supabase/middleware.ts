@@ -25,85 +25,33 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refresh the auth token
+  // IMPORTANT: Only getUser() here — no DB queries in middleware.
+  // Querying user_roles table here causes MIDDLEWARE_INVOCATION_TIMEOUT on Vercel Edge.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
 
-  // Public routes that don't require auth
-  const publicRoutes = ["/auth", "/api"];
-  const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r));
+  // Public routes — always allowed through
+  const isPublicRoute =
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/api") ||
+    pathname === "/";
 
-  // If not authenticated and trying to access protected route → redirect to auth
+  // Unauthenticated user trying to access a protected route → /auth
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth";
     return NextResponse.redirect(url);
   }
 
-  // If authenticated and on auth page → redirect to role dashboard
+  // Authenticated user visiting /auth → send into the app.
+  // The auth/page.tsx client component handles the correct role-based redirect.
   if (user && pathname === "/auth") {
-    // Fetch role from DB
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    const role = roleData?.role ?? "patient";
     const url = request.nextUrl.clone();
-
-    switch (role) {
-      case "admin":
-        url.pathname = "/admin";
-        break;
-      case "doctor":
-        url.pathname = "/doctor";
-        break;
-      default:
-        url.pathname = "/patient";
-    }
-
+    url.pathname = "/patient";
     return NextResponse.redirect(url);
-  }
-
-  // If authenticated, enforce role-based route access
-  if (user) {
-    const isRoleRoute =
-      pathname.startsWith("/patient") ||
-      pathname.startsWith("/doctor") ||
-      pathname.startsWith("/admin");
-
-    if (isRoleRoute) {
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const role = roleData?.role ?? "patient";
-
-      // Admin can access everything
-      if (role === "admin") {
-        return supabaseResponse;
-      }
-
-      // Check if user is trying to access a route they shouldn't
-      const routeRole = pathname.split("/")[1]; // "patient", "doctor", or "admin"
-      if (routeRole !== role) {
-        const url = request.nextUrl.clone();
-        switch (role) {
-          case "doctor":
-            url.pathname = "/doctor";
-            break;
-          default:
-            url.pathname = "/patient";
-        }
-        return NextResponse.redirect(url);
-      }
-    }
   }
 
   return supabaseResponse;
