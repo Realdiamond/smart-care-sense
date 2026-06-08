@@ -25,29 +25,29 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: Only getUser() here — no DB queries in middleware.
-  // Querying user_roles table here causes MIDDLEWARE_INVOCATION_TIMEOUT on Vercel Edge.
+  // Use getSession() instead of getUser() — reads JWT from cookie locally,
+  // NO network call to Supabase. This prevents MIDDLEWARE_INVOCATION_TIMEOUT.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
+  const user = session?.user ?? null;
   const pathname = request.nextUrl.pathname;
 
-  // Public routes — always allowed through
+  // Public routes — always pass through
   const isPublicRoute =
     pathname.startsWith("/auth") ||
     pathname.startsWith("/api") ||
     pathname === "/";
 
-  // Unauthenticated user trying to access a protected route → /auth
+  // Not logged in → redirect to /auth
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth";
     return NextResponse.redirect(url);
   }
 
-  // Authenticated user visiting /auth → send into the app.
-  // The auth/page.tsx client component handles the correct role-based redirect.
+  // Logged in and on /auth → send to app (auth/page.tsx handles role redirect)
   if (user && pathname === "/auth") {
     const url = request.nextUrl.clone();
     url.pathname = "/patient";
