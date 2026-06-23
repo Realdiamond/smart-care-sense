@@ -58,12 +58,15 @@ export function useLiveVitals(userId: string | undefined): LiveVitals {
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      const { data: auth } = await supabase.auth.getUser();
+      const { data, error, status } = await supabase
         .from("vitals_readings")
         .select("metric_type, value, value_secondary, recorded_at")
         .eq("user_id", userId)
         .order("recorded_at", { ascending: false })
         .limit(200);
+      // eslint-disable-next-line no-console
+      console.log("[vitals] hookUserId:", userId, "| db sees auth.uid:", auth?.user?.id ?? "NULL (not authenticated!)", "| status:", status, "| rows:", data?.length ?? 0, "| error:", error ?? "none");
       if (cancelled || !data) return;
       seeded.current = true;
       for (const row of (data as Row[]).slice().reverse()) apply(row);
