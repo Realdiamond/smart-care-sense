@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Activity, Wifi, Bluetooth, Sparkles } from "lucide-react";
@@ -9,12 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AppShell } from "@/components/dashboard/app-shell";
 import { VitalCard } from "@/components/dashboard/vital-card";
-import { EcgStrip } from "@/components/dashboard/ecg-strip";
-import { METRICS, MetricType, simulateValue } from "@/lib/vitals";
+import { METRICS, MetricType } from "@/lib/vitals";
 import { useAuth } from "@/components/providers/auth-provider";
 import { createClient } from "@/lib/supabase/client";
+import { useLiveVitals } from "@/hooks/use-live-vitals";
 
-const HISTORY = 24;
 const supabase = createClient();
 
 const Dashboard = () => {
@@ -33,58 +32,13 @@ const Dashboard = () => {
       });
   }, [user]);
 
-  // Live mock data per metric
   const metricKeys = useMemo(
     () => Object.keys(METRICS).filter((k) => k !== "ecg") as MetricType[],
     []
   );
 
-  const [values, setValues] = useState<Record<string, number>>(() =>
-    Object.fromEntries(metricKeys.map((k) => [k, METRICS[k].baseline]))
-  );
-  const [secondary, setSecondary] = useState<number>(78);
-  const [history, setHistory] = useState<Record<string, { v: number }[]>>(() =>
-    Object.fromEntries(
-      metricKeys.map((k) => [
-        k,
-        Array.from({ length: HISTORY }, () => ({ v: METRICS[k].baseline })),
-      ])
-    )
-  );
-
-  const tickRef = useRef(0);
-  useEffect(() => {
-    const id = setInterval(() => {
-      tickRef.current++;
-      setValues((prev) => {
-        const next: Record<string, number> = { ...prev };
-        for (const k of metricKeys) {
-          if (k === "steps") {
-            next[k] = Math.min(10000, (prev[k] ?? 0) + Math.floor(Math.random() * 18 + 5));
-          } else if (k === "calories") {
-            next[k] = (prev[k] ?? 0) + Math.random() * 1.5;
-          } else if (k === "sleep_hours" || k === "vo2_max") {
-            next[k] = METRICS[k].baseline + (Math.random() - 0.5) * 0.05;
-          } else {
-            next[k] = simulateValue(METRICS[k], prev[k]);
-          }
-        }
-        return next;
-      });
-      setSecondary(() => Math.round(78 + (Math.random() - 0.5) * 4));
-      setHistory((prev) => {
-        const next: Record<string, { v: number }[]> = {};
-        for (const k of metricKeys) {
-          const arr = prev[k].slice(1);
-          arr.push({ v: values[k] ?? METRICS[k].baseline });
-          next[k] = arr;
-        }
-        return next;
-      });
-    }, 1500);
-    return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // REAL vitals streamed from Health Connect via the Smart Care Bridge.
+  const { values, secondary, history, hasData, latestReadingAt } = useLiveVitals(user?.id);
 
   return (
     <AppShell>
@@ -95,14 +49,23 @@ const Dashboard = () => {
           </p>
           <h1 className="text-3xl md:text-4xl font-semibold mt-1">
             Hello{profileName ? `, ${profileName}` : ""}.{" "}
-            <span className="text-gradient-primary">All vitals are normal.</span>
+            <span className="text-gradient-primary">
+              {hasData ? "Your latest vitals." : "Waiting for your watch."}
+            </span>
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Badge className="bg-success/15 text-success border-0 gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-            Streaming live
-          </Badge>
+          {hasData ? (
+            <Badge className="bg-success/15 text-success border-0 gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+              Live · {latestReadingAt ? new Date(latestReadingAt).toLocaleTimeString() : ""}
+            </Badge>
+          ) : (
+            <Badge className="bg-muted text-muted-foreground border-0 gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+              No data yet
+            </Badge>
+          )}
           <Button asChild variant="outline" size="sm" className="gap-2">
             <Link href="/patient/devices"><Bluetooth className="h-3.5 w-3.5" /> Connect device</Link>
           </Button>
@@ -139,18 +102,15 @@ const Dashboard = () => {
             key={k}
             meta={METRICS[k]}
             value={values[k]}
-            secondary={k === "blood_pressure" ? secondary : undefined}
-            history={history[k]}
+            secondary={k === "blood_pressure" ? secondary["blood_pressure"] : undefined}
+            history={history[k] ?? []}
             index={i}
           />
         ))}
       </section>
 
-      {/* ECG + connectivity */}
-      <section className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2">
-          <EcgStrip />
-        </div>
+      {/* Connectivity */}
+      <section className="mt-6">
         <Card className="glass-card p-5 flex flex-col">
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Connectivity</div>
           <div className="space-y-3 flex-1">
@@ -178,11 +138,15 @@ const Dashboard = () => {
               <div className="flex items-center gap-3">
                 <Activity className="h-4 w-4 text-vital" />
                 <div>
-                  <div className="text-sm">Demo simulator</div>
-                  <div className="text-[11px] text-muted-foreground">Streaming sample data</div>
+                  <div className="text-sm">Health Connect bridge</div>
+                  <div className="text-[11px] text-muted-foreground">Oraimo · live readings</div>
                 </div>
               </div>
-              <Badge className="bg-success/15 text-success border-0 text-[10px]">Active</Badge>
+              {hasData ? (
+                <Badge className="bg-success/15 text-success border-0 text-[10px]">Active</Badge>
+              ) : (
+                <Badge className="bg-muted text-muted-foreground border-0 text-[10px]">Waiting</Badge>
+              )}
             </div>
           </div>
           <Button asChild variant="outline" className="mt-4">

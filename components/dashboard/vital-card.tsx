@@ -9,7 +9,7 @@ import { ResponsiveContainer, AreaChart, Area } from "recharts";
 
 type Props = {
   meta: MetricMeta;
-  value: number;
+  value: number | undefined;
   secondary?: number;
   history: { v: number }[];
   index?: number;
@@ -19,15 +19,17 @@ const colorVar = (c: string) => `hsl(var(--${c}))`;
 
 export const VitalCard = ({ meta, value, secondary, history, index = 0 }: Props) => {
   const Icon = meta.icon;
-  const status = statusFor(meta, value);
+  const hasValue = typeof value === "number" && Number.isFinite(value);
+  const status = hasValue ? statusFor(meta, value as number) : "normal";
   const color = colorVar(meta.color);
 
-  const display =
-    meta.key === "blood_pressure" && secondary
-      ? `${Math.round(value)}/${Math.round(secondary)}`
+  const display = !hasValue
+    ? "—"
+    : meta.key === "blood_pressure" && secondary
+      ? `${Math.round(value as number)}/${Math.round(secondary)}`
       : meta.decimals
-      ? value.toFixed(meta.decimals)
-      : Math.round(value).toLocaleString();
+      ? (value as number).toFixed(meta.decimals)
+      : Math.round(value as number).toLocaleString();
 
   return (
     <motion.div
