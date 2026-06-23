@@ -40,15 +40,21 @@ export function useLiveVitals(userId: string | undefined): LiveVitals {
   const seeded = useRef(false);
 
   function apply(row: Row) {
-    setValues((p) => ({ ...p, [row.metric_type]: row.value }));
-    if (row.value_secondary != null) {
-      setSecondary((p) => ({ ...p, [row.metric_type]: row.value_secondary as number }));
+    // Postgres `numeric` comes back as a string ("79"), so coerce to Number.
+    const value = Number(row.value);
+    if (!Number.isFinite(value)) return;
+    const secondaryNum =
+      row.value_secondary != null ? Number(row.value_secondary) : null;
+
+    setValues((p) => ({ ...p, [row.metric_type]: value }));
+    if (secondaryNum != null && Number.isFinite(secondaryNum)) {
+      setSecondary((p) => ({ ...p, [row.metric_type]: secondaryNum }));
     }
     setLastAt((p) => ({ ...p, [row.metric_type]: row.recorded_at }));
     setLatestReadingAt((p) => (!p || row.recorded_at > p ? row.recorded_at : p));
     setHistory((p) => {
       const arr = (p[row.metric_type] ?? []).slice(-(HISTORY - 1));
-      arr.push({ v: row.value });
+      arr.push({ v: value });
       return { ...p, [row.metric_type]: arr };
     });
   }
@@ -58,15 +64,12 @@ export function useLiveVitals(userId: string | undefined): LiveVitals {
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const { data: auth } = await supabase.auth.getUser();
-      const { data, error, status } = await supabase
+      const { data } = await supabase
         .from("vitals_readings")
         .select("metric_type, value, value_secondary, recorded_at")
         .eq("user_id", userId)
         .order("recorded_at", { ascending: false })
         .limit(200);
-      // eslint-disable-next-line no-console
-      console.log("[vitals] hookUserId:", userId, "| db sees auth.uid:", auth?.user?.id ?? "NULL (not authenticated!)", "| status:", status, "| rows:", data?.length ?? 0, "| error:", error ?? "none");
       if (cancelled || !data) return;
       seeded.current = true;
       for (const row of (data as Row[]).slice().reverse()) apply(row);
