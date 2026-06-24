@@ -38,6 +38,7 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     pathname.startsWith("/auth") ||
     pathname.startsWith("/api") ||
+    pathname.startsWith("/download") ||
     pathname === "/";
 
   // Not logged in → redirect to /auth

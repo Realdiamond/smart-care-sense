@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Bluetooth, Wifi, Plus, Trash2, Copy, Check, Loader2, Radio, Battery, HeartPulse, Watch as WatchIcon } from "lucide-react";
+import { Wifi, Plus, Trash2, Copy, Check, Loader2, Watch as WatchIcon, Smartphone, Download, HeartPulse } from "lucide-react";
 import { AppShell } from "@/components/dashboard/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,12 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/components/providers/auth-provider";
-import { isBluetoothAvailable, pairHeartRateMonitor } from "@/lib/bluetooth";
+import { APK_DOWNLOAD_URL } from "@/lib/app-download";
 import { toast } from "sonner";
-
 
 const supabase = createClient();
 type Device = {
@@ -42,30 +40,26 @@ function generateKey(): string {
   return "hp_" + Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+const STEPS = [
+  { n: 1, title: "Install the Smart Care app", body: "Download and install the Android companion app on the phone paired with your Oraimo watch." },
+  { n: 2, title: "Log in with this account", body: "Open the app and sign in with the same email and password you use here." },
+  { n: 3, title: "Allow Health Connect", body: "Grant the app permission to read your health data from Android Health Connect." },
+  { n: 4, title: "Enable Oraimo → Health Connect", body: "In the Oraimo Health app, turn on syncing to Health Connect, then wear your watch. Vitals appear here within a few minutes." },
+];
+
 const Devices = () => {
   const { user } = useAuth();
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
-  const [btSupported, setBtSupported] = useState(false);
-  const [pairing, setPairing] = useState(false);
-  const [liveHR, setLiveHR] = useState<number | null>(null);
-  const [liveDeviceName, setLiveDeviceName] = useState<string | null>(null);
-  const [liveBattery, setLiveBattery] = useState<number | undefined>(undefined);
-  const [disconnect, setDisconnect] = useState<(() => void) | null>(null);
 
-  // Wi-Fi dialog
+  // Wi-Fi / IoT dialog
   const [wifiOpen, setWifiOpen] = useState(false);
   const [wifiName, setWifiName] = useState("");
   const [creating, setCreating] = useState(false);
   const [issuedKey, setIssuedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    document.title = "Devices — HealthPulse";
-    isBluetoothAvailable().then(setBtSupported);
-    return () => disconnect?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => { document.title = "Connect your watch — HealthPulse"; }, []);
 
   const load = async () => {
     setLoading(true);
@@ -80,7 +74,6 @@ const Devices = () => {
 
   useEffect(() => { if (user) load(); }, [user]);
 
-  // Realtime: refresh on insert/update/delete to devices.
   useEffect(() => {
     if (!user) return;
     const ch = supabase
@@ -89,53 +82,6 @@ const Devices = () => {
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user]);
-
-  const handlePairBLE = async () => {
-    if (!user) return;
-    setPairing(true);
-    try {
-      const { device, battery, disconnect: dc } = await pairHeartRateMonitor(async (bpm) => {
-        setLiveHR(bpm);
-        // Persist each beat sample as a vitals reading
-        await supabase.from("vitals_readings").insert({
-          user_id: user.id,
-          metric_type: "heart_rate",
-          value: bpm,
-          unit: "bpm",
-        });
-      });
-      setLiveDeviceName(device.name ?? "BLE Heart Rate Monitor");
-      setLiveBattery(battery);
-      setDisconnect(() => dc);
-
-      // Upsert a device record (no API key needed for BLE — pairing is per-session).
-      await supabase.from("devices").insert({
-        user_id: user.id,
-        name: device.name ?? "BLE Heart Rate Monitor",
-        device_type: "smartwatch",
-        connection_type: "bluetooth",
-        is_active: true,
-        last_seen_at: new Date().toISOString(),
-        mac_address: device.id,
-      });
-
-      toast.success("Paired. Streaming heart rate live.");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Pairing cancelled";
-      toast.error(msg);
-    } finally {
-      setPairing(false);
-    }
-  };
-
-  const handleDisconnectBLE = () => {
-    disconnect?.();
-    setDisconnect(null);
-    setLiveHR(null);
-    setLiveDeviceName(null);
-    setLiveBattery(undefined);
-    toast.success("Disconnected");
-  };
 
   const handleCreateWifi = async () => {
     if (!user || !wifiName.trim()) return;
@@ -147,7 +93,7 @@ const Devices = () => {
       const { error } = await supabase.from("devices").insert({
         user_id: user.id,
         name: wifiName.trim(),
-        device_type: "smartwatch",
+        device_type: "iot",
         connection_type: "wifi",
         is_active: true,
         api_key_hash: hash,
@@ -196,98 +142,64 @@ const Devices = () => {
     <AppShell>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">Devices</h1>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">Connect your watch</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Pair a smartwatch over Bluetooth, or register an IoT device that sends vitals over Wi-Fi.
+            Your Oraimo watch syncs through the Smart Care Android app — install it, log in, and your vitals flow here automatically.
           </p>
         </header>
 
-        {/* Pairing actions */}
-        <div className="grid md:grid-cols-2 gap-4 mb-8">
-          {/* Bluetooth */}
-          <Card className="glass-card p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-11 w-11 rounded-xl bg-primary/15 flex items-center justify-center">
-                  <Bluetooth className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <div className="font-medium">Bluetooth (BLE)</div>
-                  <div className="text-xs text-muted-foreground">Standard GATT Heart Rate · 0x180D</div>
-                </div>
-              </div>
-              {btSupported ? (
-                <Badge className="bg-success/15 text-success hover:bg-success/15">Available</Badge>
-              ) : (
-                <Badge variant="outline">Not supported</Badge>
-              )}
+        {/* Connect via app */}
+        <Card className="glass-card p-6 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center gap-5 mb-6">
+            <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+              <Smartphone className="h-6 w-6 text-primary" />
             </div>
+            <div className="flex-1">
+              <div className="font-medium text-lg">Smart Care — Android app</div>
+              <div className="text-sm text-muted-foreground">Reads your watch data from Health Connect and syncs it to your account.</div>
+            </div>
+            <Button asChild className="bg-gradient-primary text-primary-foreground hover:opacity-90">
+              <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer">
+                <Download className="h-4 w-4 mr-2" /> Download app
+              </a>
+            </Button>
+          </div>
 
-            {liveHR !== null ? (
-              <div className="mt-5 rounded-xl border border-border bg-card/40 p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-vital flex items-center justify-center">
-                      <HeartPulse className="h-4 w-4 text-vital-foreground heartbeat" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium">{liveDeviceName}</div>
-                      <div className="text-[11px] text-muted-foreground flex items-center gap-2">
-                        <Radio className="h-3 w-3 text-success" /> Live
-                        {liveBattery != null && (<><span>·</span><Battery className="h-3 w-3" /> {liveBattery}%</>)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-semibold tabular-nums text-vital">{liveHR}</div>
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">bpm</div>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="mt-3 w-full" onClick={handleDisconnectBLE}>
-                  Disconnect
-                </Button>
-              </div>
-            ) : (
-              <Button
-                onClick={handlePairBLE}
-                disabled={!btSupported || pairing}
-                className="mt-5 w-full bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow"
-              >
-                {pairing ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Bluetooth className="h-4 w-4 mr-2" /> Pair heart rate monitor</>}
-              </Button>
-            )}
-
-            {!btSupported && (
-              <p className="text-[11px] text-muted-foreground mt-3">
-                Web Bluetooth requires Chrome, Edge, or Opera on desktop/Android over HTTPS.
-              </p>
-            )}
-          </Card>
-
-          {/* Wi-Fi */}
-          <Card className="glass-card p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-11 w-11 rounded-xl bg-accent/15 flex items-center justify-center">
-                  <Wifi className="h-5 w-5 text-accent" />
-                </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {STEPS.map((s) => (
+              <div key={s.n} className="flex gap-3 p-3 rounded-xl border border-border bg-card/30">
+                <div className="h-7 w-7 rounded-full bg-primary/15 text-primary text-sm font-semibold flex items-center justify-center shrink-0">{s.n}</div>
                 <div>
-                  <div className="font-medium">Wi-Fi / HTTP ingest</div>
-                  <div className="text-xs text-muted-foreground">For ESP32-style devices · per-device API key</div>
+                  <div className="text-sm font-medium">{s.title}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{s.body}</div>
                 </div>
               </div>
-              <Badge className="bg-success/15 text-success hover:bg-success/15">Active</Badge>
+            ))}
+          </div>
+        </Card>
+
+        {/* Advanced: IoT / Wi-Fi device */}
+        <Card className="glass-card p-5 mb-8">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-xl bg-accent/15 flex items-center justify-center">
+                <Wifi className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <div className="font-medium">Advanced — IoT / Wi-Fi device</div>
+                <div className="text-xs text-muted-foreground">For ESP32-style hardware that posts vitals over HTTP · per-device API key</div>
+              </div>
             </div>
 
             <Dialog open={wifiOpen} onOpenChange={(o) => (o ? setWifiOpen(true) : closeWifiDialog())}>
               <DialogTrigger asChild>
-                <Button className="mt-5 w-full" variant="outline">
-                  <Plus className="h-4 w-4 mr-2" /> Register Wi-Fi device
+                <Button variant="outline">
+                  <Plus className="h-4 w-4 mr-2" /> Register device
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-lg">
                 <DialogHeader>
-                  <DialogTitle>{issuedKey ? "Device key issued" : "Register Wi-Fi device"}</DialogTitle>
+                  <DialogTitle>{issuedKey ? "Device key issued" : "Register IoT device"}</DialogTitle>
                 </DialogHeader>
 
                 {!issuedKey ? (
@@ -328,61 +240,46 @@ const Devices = () => {
                 )}
               </DialogContent>
             </Dialog>
-          </Card>
-        </div>
+          </div>
+        </Card>
 
         {/* Device list */}
         <Card className="glass-card p-5">
-          <Tabs defaultValue="all">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium">Your devices</h2>
-              <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="bluetooth">Bluetooth</TabsTrigger>
-                <TabsTrigger value="wifi">Wi-Fi</TabsTrigger>
-              </TabsList>
-            </div>
-
-            {(["all", "bluetooth", "wifi"] as const).map((tab) => {
-              const filtered = tab === "all" ? devices : devices.filter((d) => d.connection_type === tab);
-              return (
-                <TabsContent key={tab} value={tab} className="space-y-2">
-                  {loading ? (
-                    <div className="py-12 flex items-center justify-center text-muted-foreground">
-                      <Loader2 className="h-5 w-5 animate-spin" />
+          <h2 className="text-lg font-medium mb-4">Your connected sources</h2>
+          <div className="space-y-2">
+            {loading ? (
+              <div className="py-12 flex items-center justify-center text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </div>
+            ) : devices.length === 0 ? (
+              <div className="py-12 text-center text-sm text-muted-foreground">
+                <WatchIcon className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                Nothing connected yet. Install the app above and log in to start syncing.
+              </div>
+            ) : (
+              devices.map((d) => (
+                <div key={d.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card/30 hover:bg-card/50 transition-colors">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-accent/15 text-accent">
+                    {d.connection_type === "wifi" ? <Wifi className="h-4 w-4" /> : <HeartPulse className="h-4 w-4" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">{d.name}</div>
+                    <div className="text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap">
+                      <span className="capitalize">{d.connection_type}</span>
+                      {d.api_key_prefix && <span className="font-mono">· {d.api_key_prefix}…</span>}
+                      {d.last_seen_at && <span>· seen {new Date(d.last_seen_at).toLocaleString()}</span>}
                     </div>
-                  ) : filtered.length === 0 ? (
-                    <div className="py-12 text-center text-sm text-muted-foreground">
-                      <WatchIcon className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                      No devices yet. Pair one above.
-                    </div>
-                  ) : (
-                    filtered.map((d) => (
-                      <div key={d.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card/30 hover:bg-card/50 transition-colors">
-                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${d.connection_type === "bluetooth" ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"}`}>
-                          {d.connection_type === "bluetooth" ? <Bluetooth className="h-4 w-4" /> : <Wifi className="h-4 w-4" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium truncate">{d.name}</div>
-                          <div className="text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap">
-                            <span className="capitalize">{d.connection_type}</span>
-                            {d.api_key_prefix && <span className="font-mono">· {d.api_key_prefix}…</span>}
-                            {d.last_seen_at && <span>· seen {new Date(d.last_seen_at).toLocaleString()}</span>}
-                          </div>
-                        </div>
-                        <Badge variant="outline" className={d.is_active ? "border-success/40 text-success" : ""}>
-                          {d.is_active ? "active" : "inactive"}
-                        </Badge>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id)} aria-label="Delete device">
-                          <Trash2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      </div>
-                    ))
-                  )}
-                </TabsContent>
-              );
-            })}
-          </Tabs>
+                  </div>
+                  <Badge variant="outline" className={d.is_active ? "border-success/40 text-success" : ""}>
+                    {d.is_active ? "active" : "inactive"}
+                  </Badge>
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id)} aria-label="Delete device">
+                    <Trash2 className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
         </Card>
       </motion.div>
     </AppShell>

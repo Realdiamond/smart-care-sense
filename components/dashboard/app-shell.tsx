@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { PATIENT_NAV, DOCTOR_NAV, ADMIN_NAV } from "@/config/navigation";
 import { NotificationBell } from "@/components/shared/notification-bell";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { AppInstallBanner } from "@/components/shared/app-install-banner";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { getRoleLabel } from "@/config/roles";
 
@@ -147,6 +148,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         transition={{ duration: 0.35 }}
         className="flex-1 min-w-0 px-4 md:px-8 py-6 md:py-8 mt-28 md:mt-0 overflow-y-auto"
       >
+        {role === "patient" && <AppInstallBanner />}
         {children}
       </motion.main>
     </div>
