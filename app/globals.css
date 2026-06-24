@@ -4,73 +4,131 @@
 @tailwind components;
 @tailwind utilities;
 
-/* HealthPulse design system — clinical-grade, calm, alive.
-   Deep midnight teal background, vital-coral & oxygen-mint accents.
+/* HealthPulse design system — Clinical Blue & White.
+   Calm, trustworthy, flat surfaces, hairline borders, minimal shadows.
+   Light is the default (:root); .dark is a refined dark variant.
    All colors HSL. */
 
 @layer base {
   :root {
-    --background: 196 45% 6%;
-    --foreground: 180 25% 96%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
-    --card: 196 38% 9%;
-    --card-foreground: 180 25% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 196 38% 10%;
-    --popover-foreground: 180 25% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 168 84% 52%;
-    --primary-foreground: 196 45% 6%;
-    --primary-glow: 168 90% 65%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 221 83% 60%;
 
-    --secondary: 196 30% 14%;
-    --secondary-foreground: 180 25% 96%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 196 25% 13%;
-    --muted-foreground: 180 12% 65%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 188 95% 58%;
-    --accent-foreground: 196 45% 6%;
+    --accent: 192 82% 40%;
+    --accent-foreground: 0 0% 100%;
 
-    --vital: 354 85% 62%;
+    --vital: 0 72% 51%;
     --vital-foreground: 0 0% 100%;
-    --oxygen: 168 84% 52%;
-    --activity: 38 95% 60%;
-    --sleep: 258 80% 70%;
-    --stress: 14 90% 62%;
+    --oxygen: 192 82% 40%;
+    --activity: 38 92% 50%;
+    --sleep: 262 83% 58%;
+    --stress: 14 90% 53%;
 
-    --success: 152 70% 50%;
-    --warning: 38 95% 60%;
-    --destructive: 354 85% 58%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 196 30% 18%;
-    --input: 196 30% 16%;
-    --ring: 168 84% 52%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    --gradient-hero: radial-gradient(1200px 600px at 10% -10%, hsl(168 84% 52% / 0.18), transparent 60%),
-                     radial-gradient(900px 500px at 100% 0%, hsl(188 95% 58% / 0.14), transparent 55%),
-                     linear-gradient(180deg, hsl(196 50% 8%), hsl(196 45% 6%));
-    --gradient-primary: linear-gradient(135deg, hsl(168 84% 52%), hsl(188 95% 58%));
-    --gradient-vital: linear-gradient(135deg, hsl(354 85% 62%), hsl(14 90% 62%));
-    --gradient-card: linear-gradient(160deg, hsl(196 38% 11% / 0.9), hsl(196 38% 8% / 0.9));
+    /* Flat / near-flat — no rainbow, no glow. */
+    --gradient-hero: linear-gradient(180deg, hsl(210 40% 99%), hsl(210 40% 97%));
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(213 90% 58%));
+    --gradient-vital: linear-gradient(135deg, hsl(0 72% 51%), hsl(0 72% 51%));
+    --gradient-card: linear-gradient(160deg, hsl(0 0% 100%), hsl(0 0% 100%));
 
-    --shadow-glow: 0 0 40px hsl(168 84% 52% / 0.35);
-    --shadow-vital: 0 0 30px hsl(354 85% 62% / 0.45);
-    --shadow-card: 0 20px 60px -20px hsl(196 60% 2% / 0.8);
+    --shadow-glow: 0 1px 2px hsl(221 83% 53% / 0.08);
+    --shadow-vital: 0 1px 2px hsl(0 72% 51% / 0.10);
+    --shadow-card: 0 1px 3px hsl(222 47% 11% / 0.06), 0 1px 2px hsl(222 47% 11% / 0.04);
 
     --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 
-    --sidebar-background: 196 42% 7%;
-    --sidebar-foreground: 180 18% 80%;
-    --sidebar-primary: 168 84% 52%;
-    --sidebar-primary-foreground: 196 45% 6%;
-    --sidebar-accent: 196 30% 12%;
-    --sidebar-accent-foreground: 180 25% 96%;
-    --sidebar-border: 196 30% 16%;
-    --sidebar-ring: 168 84% 52%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 25% 27%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 221 83% 53%;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 40% 11%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 40% 11%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 7%;
+    --primary-glow: 217 91% 60%;
+
+    --secondary: 222 30% 16%;
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 222 30% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 192 82% 50%;
+    --accent-foreground: 222 47% 7%;
+
+    --vital: 0 72% 60%;
+    --vital-foreground: 0 0% 100%;
+    --oxygen: 192 82% 50%;
+    --activity: 38 92% 58%;
+    --sleep: 262 83% 68%;
+    --stress: 14 90% 60%;
+
+    --success: 142 71% 50%;
+    --warning: 38 92% 58%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 25% 20%;
+    --input: 222 25% 18%;
+    --ring: 217 91% 60%;
+
+    --gradient-hero: linear-gradient(180deg, hsl(222 47% 8%), hsl(222 47% 7%));
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(199 89% 55%));
+    --gradient-vital: linear-gradient(135deg, hsl(0 72% 60%), hsl(0 72% 60%));
+    --gradient-card: linear-gradient(160deg, hsl(222 40% 12%), hsl(222 40% 11%));
+
+    --shadow-glow: 0 1px 2px hsl(0 0% 0% / 0.30);
+    --shadow-vital: 0 1px 2px hsl(0 0% 0% / 0.30);
+    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.40);
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 25% 80%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 222 47% 7%;
+    --sidebar-accent: 222 30% 14%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 25% 16%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -91,9 +149,7 @@
 
 @layer components {
   .glass-card {
-    background: var(--gradient-card);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     box-shadow: var(--shadow-card);
   }

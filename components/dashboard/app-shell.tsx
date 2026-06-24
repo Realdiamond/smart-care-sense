@@ -11,6 +11,7 @@ import { useRole } from "@/hooks/use-role";
 import { cn } from "@/lib/utils";
 import { PATIENT_NAV, DOCTOR_NAV, ADMIN_NAV } from "@/config/navigation";
 import { NotificationBell } from "@/components/shared/notification-bell";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { getRoleLabel } from "@/config/roles";
 
@@ -82,6 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="text-[10px] text-muted-foreground truncate">{roleLabel}</div>
             </div>
             <div className="flex items-center gap-1">
+              <ThemeToggle />
               <NotificationBell />
               <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign out" className="h-8 w-8">
                 <LogOut className="h-3.5 w-3.5" />
@@ -104,6 +106,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <ThemeToggle />
             <NotificationBell />
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleSignOut}>
               <LogOut className="h-4 w-4" />
