@@ -150,7 +150,7 @@ Deno.serve(async (req) => {
         });
       }
       if (aiResp.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Add funds in Lovable Cloud > Usage." }), {
+        return new Response(JSON.stringify({ error: "AI service quota exceeded. Please try again later." }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
