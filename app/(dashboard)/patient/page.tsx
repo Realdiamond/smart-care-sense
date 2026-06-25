@@ -32,8 +32,10 @@ const Dashboard = () => {
       });
   }, [user]);
 
+  // Only the metrics an Oraimo watch actually reports (via Health Connect), so
+  // the dashboard shows real data with no permanently-empty cards.
   const metricKeys = useMemo(
-    () => Object.keys(METRICS).filter((k) => k !== "ecg") as MetricType[],
+    () => ["heart_rate", "spo2", "steps", "calories", "sleep_hours"] as MetricType[],
     []
   );
 

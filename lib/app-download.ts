@@ -1,8 +1,9 @@
-// Android companion app (Smart Care Bridge) download.
-// TODO: replace APK_DOWNLOAD_URL with the real hosted .apk URL once you publish a
-// build (e.g. a GitHub Release asset, or a Supabase Storage public object).
+// Android companion app download — hosted as a GitHub Release asset on the
+// public Realdiamond/smart-care-app repo (Supabase Free caps uploads at 50MB).
+// Upload the built APK to the latest release named exactly "smart-care.apk".
+// "releases/latest/download/..." always points at the newest release's asset.
 export const APK_DOWNLOAD_URL =
-  "https://github.com/Realdiamond/smart-care-bridge/releases/latest/download/smart-care-bridge.apk";
+  "https://github.com/Realdiamond/smart-care-app/releases/latest/download/smart-care.apk";
 
 // Latest published app version. Bump when you ship a new APK so the banner /
 // "update available" checks can compare against it later.
