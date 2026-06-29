@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Activity, Wifi, Bluetooth, Sparkles } from "lucide-react";
+import { Activity, Bluetooth, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,9 +86,11 @@ const Dashboard = () => {
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="flex-1">
-            <div className="text-xs uppercase tracking-widest text-primary mb-1">AI Insight</div>
+            <div className="text-xs uppercase tracking-widest text-primary mb-1">AI Health Assistant</div>
             <p className="text-sm text-foreground/90">
-              Your resting heart rate is trending <span className="text-success font-medium">2 bpm lower</span> than last week — a sign of improving cardiovascular fitness. Keep up the consistent activity.
+              {hasData
+                ? "Your vitals are syncing. Ask the AI assistant for personalised insights based on your latest readings."
+                : "Sync your Oraimo watch via the Smart Care app to unlock AI-powered health insights and recommendations."}
             </p>
           </div>
           <Button asChild size="sm" className="bg-gradient-primary text-primary-foreground hover:opacity-90">
@@ -118,30 +120,24 @@ const Dashboard = () => {
           <div className="space-y-3 flex-1">
             <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/40">
               <div className="flex items-center gap-3">
-                <Bluetooth className="h-4 w-4 text-primary" />
-                <div>
-                  <div className="text-sm">Web Bluetooth</div>
-                  <div className="text-[11px] text-muted-foreground">GATT · BLE 5.0</div>
-                </div>
-              </div>
-              <Badge variant="outline" className="text-[10px] border-0 bg-muted text-muted-foreground">Ready</Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/40">
-              <div className="flex items-center gap-3">
-                <Wifi className="h-4 w-4 text-accent" />
-                <div>
-                  <div className="text-sm">Wi-Fi Ingest</div>
-                  <div className="text-[11px] text-muted-foreground">HTTPS endpoint</div>
-                </div>
-              </div>
-              <Badge variant="outline" className="text-[10px] border-0 bg-muted text-muted-foreground">Ready</Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/40">
-              <div className="flex items-center gap-3">
                 <Activity className="h-4 w-4 text-vital" />
                 <div>
-                  <div className="text-sm">Health Connect bridge</div>
-                  <div className="text-[11px] text-muted-foreground">Oraimo · live readings</div>
+                  <div className="text-sm">Smart Care app</div>
+                  <div className="text-[11px] text-muted-foreground">Android · Health Connect bridge</div>
+                </div>
+              </div>
+              {hasData ? (
+                <Badge className="bg-success/15 text-success border-0 text-[10px]">Syncing</Badge>
+              ) : (
+                <Badge className="bg-muted text-muted-foreground border-0 text-[10px]">Not connected</Badge>
+              )}
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/40">
+              <div className="flex items-center gap-3">
+                <Bluetooth className="h-4 w-4 text-primary" />
+                <div>
+                  <div className="text-sm">Oraimo Health</div>
+                  <div className="text-[11px] text-muted-foreground">Watch → Health Connect → Smart Care</div>
                 </div>
               </div>
               {hasData ? (
