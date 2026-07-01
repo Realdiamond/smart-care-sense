@@ -19,6 +19,18 @@ export default function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<"signin" | "signup">("signin");
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get("mode");
+      if (mode === "signup" || mode === "register") {
+        setTab("signup");
+      } else if (mode === "signin" || mode === "login") {
+        setTab("signin");
+      }
+    }
+  }, []);
+
   // If already authenticated, redirect via useEffect to avoid "update while rendering" error
   useEffect(() => {
     if (!loading && user && role) {

@@ -39,8 +39,8 @@ function Landing() {
           <span className="text-lg font-semibold text-gradient-primary">HealthPulse</span>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/auth" className="text-sm px-4 py-2 rounded-lg hover:bg-secondary transition-colors">Log in</Link>
-          <Link href="/auth" className="text-sm px-4 py-2 rounded-lg bg-gradient-primary text-primary-foreground hover:opacity-90">Get started</Link>
+          <Link href="/auth?mode=login" className="text-sm px-4 py-2 rounded-lg hover:bg-secondary transition-colors">Log in</Link>
+          <Link href="/auth?mode=register" className="text-sm px-4 py-2 rounded-lg bg-gradient-primary text-primary-foreground hover:opacity-90">Register</Link>
         </div>
       </header>
 
