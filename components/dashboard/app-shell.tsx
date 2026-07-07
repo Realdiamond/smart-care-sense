@@ -28,7 +28,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const handleSignOut = async () => {
     await signOut();
-    router.push("/auth");
+    await fetch("/auth/signout", { method: "POST" });
+    window.location.href = "/auth";
   };
 
   return (
