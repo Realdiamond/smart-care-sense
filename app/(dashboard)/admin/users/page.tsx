@@ -44,32 +44,44 @@ export default function UserManagement() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    // Join user_roles + profiles via user_id
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select(`
-        user_id, role, created_at,
-        profile:user_id ( full_name )
-      `)
-      .order("created_at", { ascending: false });
+    
+    // Fetch roles and profiles separately and merge, since they don't have a direct FK relationship
+    const [rolesRes, profilesRes] = await Promise.all([
+      supabase.from("user_roles").select("user_id, role, created_at").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("id, full_name")
+    ]);
 
-    if (!error && data) {
+    if (!rolesRes.error && rolesRes.data) {
+      const profilesMap: Record<string, string | null> = {};
+      (profilesRes.data ?? []).forEach((p: any) => { profilesMap[p.id] = p.full_name; });
+
+      console.log("DEBUG - user_roles:", rolesRes.data);
+      console.log("DEBUG - profiles:", profilesRes.data);
+
       // Also get verification status for doctors
-      const doctorIds = data.filter((r: any) => r.role === "doctor").map((r: any) => r.user_id);
+      const doctorIds = rolesRes.data.filter((r: any) => r.role === "doctor").map((r: any) => r.user_id);
       const { data: dpData } = doctorIds.length > 0
         ? await supabase.from("doctor_profiles").select("user_id, is_verified").in("user_id", doctorIds)
         : { data: [] };
       const verMap: Record<string, boolean> = {};
       (dpData ?? []).forEach((d: any) => { verMap[d.user_id] = d.is_verified; });
 
-      setUsers(data.map((r: any) => ({
-        id: r.user_id,
-        email: "",
-        full_name: r.profile?.full_name ?? null,
-        role: r.role,
-        created_at: r.created_at,
-        is_verified: r.role === "doctor" ? verMap[r.user_id] ?? false : undefined,
-      })));
+      const rolesMap: Record<string, any> = {};
+      (rolesRes.data ?? []).forEach((r: any) => { rolesMap[r.user_id] = r; });
+
+      setUsers((profilesRes.data ?? []).map((p: any) => {
+        const r = rolesMap[p.id];
+        return {
+          id: p.id,
+          email: "",
+          full_name: p.full_name,
+          role: r?.role ?? "patient", // fallback
+          created_at: r?.created_at ?? new Date().toISOString(),
+          is_verified: r?.role === "doctor" ? verMap[p.id] ?? false : undefined,
+        };
+      }));
+    } else {
+      console.error("Failed to fetch users:", rolesRes.error || profilesRes.error);
     }
     setLoading(false);
   }, []);
@@ -82,10 +94,20 @@ export default function UserManagement() {
     }
     setCreating(true);
     try {
-      const { error } = await supabase.functions.invoke("admin-create-doctor", {
+      const { data, error } = await supabase.functions.invoke("admin-create-doctor", {
         body: { full_name: form.full_name, email: form.email, password: form.password, specialty: form.specialty, license_number: form.license_number, years_experience: parseInt(form.years_experience) || 0 },
       });
       if (error) throw error;
+      
+      // If the backend didn't set Content-Type: application/json, it might be returned as a Blob or ArrayBuffer
+      let parsedData = data;
+      if (data instanceof Blob) {
+        const text = await data.text();
+        try { parsedData = JSON.parse(text); } catch(e) { parsedData = { error: text }; }
+      }
+      
+      if (parsedData && parsedData.error) throw new Error(parsedData.error);
+      
       toast.success(`Doctor account created for ${form.email}`);
       setCreateOpen(false);
       setForm({ full_name: "", email: "", password: "", specialty: "General Practice", license_number: "", years_experience: "0" });

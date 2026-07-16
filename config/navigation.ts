@@ -36,7 +36,7 @@ export const DOCTOR_NAV: NavItem[] = [
 
 export const ADMIN_NAV: NavItem[] = [
   { href: "/admin",              label: "Dashboard",     icon: LayoutDashboard, end: true },
-  { href: "/admin/users",        label: "Users",         icon: Users },
+  { href: "/admin/users",        label: "Doctor and Students", icon: Users },
   { href: "/admin/verify",       label: "Verify Doctors",icon: UserCheck },
   { href: "/admin/assignments",  label: "Assignments",   icon: ClipboardList },
   { href: "/admin/alerts",       label: "All Alerts",    icon: ShieldAlert },

@@ -28,7 +28,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const handleSignOut = async () => {
     await signOut();
-    await fetch("/auth/signout", { method: "POST" });
+    try {
+      await fetch("/auth/signout", { method: "POST" });
+    } catch (e) {}
+    
+    // Force clear any stuck Supabase auth tokens from local storage
+    if (typeof window !== "undefined") {
+      Object.keys(window.localStorage).forEach(key => {
+        if (key.startsWith("sb-") && key.endsWith("-auth-token")) {
+          window.localStorage.removeItem(key);
+        }
+      });
+    }
     window.location.href = "/auth";
   };
 

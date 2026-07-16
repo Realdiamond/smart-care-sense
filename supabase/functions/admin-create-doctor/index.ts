@@ -12,12 +12,12 @@ serve(async (req) => {
   try {
     // Validate caller is an admin (check JWT claim from calling client)
     const authHeader = req.headers.get("authorization");
-    if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 200, headers: corsHeaders });
 
     // Use service role for admin operations
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")! || Deno.env.get("SERVICE_ROLE_KEY")! // Fallbacks just in case
     );
 
     // Verify caller is admin using their JWT
@@ -27,10 +27,10 @@ serve(async (req) => {
       { global: { headers: { authorization: authHeader } } }
     );
     const { data: { user: caller } } = await callerClient.auth.getUser();
-    if (!caller) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    if (!caller) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 200, headers: corsHeaders });
 
     const { data: callerRole } = await supabase.from("user_roles").select("role").eq("user_id", caller.id).maybeSingle();
-    if (callerRole?.role !== "admin") return new Response(JSON.stringify({ error: "Forbidden: Admins only" }), { status: 403, headers: corsHeaders });
+    if (callerRole?.role !== "admin") return new Response(JSON.stringify({ error: "Forbidden: Admins only" }), { status: 200, headers: corsHeaders });
 
     // ── Parse request ──────────────────────────────────────
     const { full_name, email, password, specialty, license_number, years_experience } = await req.json();
@@ -105,6 +105,10 @@ serve(async (req) => {
 
   } catch (err: any) {
     console.error("admin-create-doctor error:", err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+    // Returning 200 so the frontend can actually parse the JSON body instead of throwing a generic error
+    return new Response(JSON.stringify({ error: err.message }), { 
+      status: 200, 
+      headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    });
   }
 });
