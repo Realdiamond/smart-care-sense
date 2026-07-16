@@ -89,7 +89,7 @@ export default function Appointments() {
         const specMap: Record<string, string> = {};
         (docProfRes.data ?? []).forEach((p: any) => { specMap[p.user_id] = p.specialty ?? ""; });
 
-        setDoctors(doctorIds.map(id => ({
+        setDoctors(doctorIds.map((id: string) => ({
           id,
           name: profMap[id] ?? "Doctor",
           specialty: specMap[id] ?? ""
