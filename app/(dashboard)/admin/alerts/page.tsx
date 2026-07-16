@@ -39,15 +39,22 @@ export default function PlatformAlerts() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data: alertData, error } = await supabase
       .from("alerts")
-      .select(`*, patient:user_id ( profiles!inner ( full_name ) )`)
+      .select("*")
       .order("created_at", { ascending: false })
       .limit(100);
 
-    setAlerts((data ?? []).map((r: any) => ({
-      ...r, patient_name: r.patient?.profiles?.full_name ?? "Unknown",
-    })));
+    if (error) { console.error("Failed to load alerts:", error.message); setLoading(false); return; }
+
+    const userIds = [...new Set((alertData ?? []).map((r: any) => r.user_id))];
+    const { data: profData } = userIds.length > 0
+      ? await supabase.from("profiles").select("id, full_name").in("id", userIds)
+      : { data: [] };
+    const profMap: Record<string, string> = {};
+    (profData ?? []).forEach((p: any) => { profMap[p.id] = p.full_name ?? "Unknown"; });
+
+    setAlerts((alertData ?? []).map((r: any) => ({ ...r, patient_name: profMap[r.user_id] ?? "Unknown" })));
     setLoading(false);
   };
 

@@ -12,22 +12,21 @@ serve(async (req) => {
   try {
     // Validate caller is an admin (check JWT claim from calling client)
     const authHeader = req.headers.get("authorization");
-    if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 200, headers: corsHeaders });
+    if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized: No token provided" }), { status: 200, headers: corsHeaders });
 
     // Use service role for admin operations
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")! || Deno.env.get("SERVICE_ROLE_KEY")! // Fallbacks just in case
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Verify caller is admin using their JWT
-    const callerClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { authorization: authHeader } } }
-    );
-    const { data: { user: caller } } = await callerClient.auth.getUser();
-    if (!caller) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 200, headers: corsHeaders });
+    // Verify caller using the JWT — getUser validates the token server-side
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user: caller }, error: callerError } = await supabase.auth.getUser(token);
+    if (callerError || !caller) {
+      console.error("getUser error:", callerError);
+      return new Response(JSON.stringify({ error: "Unauthorized: Invalid token" }), { status: 200, headers: corsHeaders });
+    }
 
     const { data: callerRole } = await supabase.from("user_roles").select("role").eq("user_id", caller.id).maybeSingle();
     if (callerRole?.role !== "admin") return new Response(JSON.stringify({ error: "Forbidden: Admins only" }), { status: 200, headers: corsHeaders });

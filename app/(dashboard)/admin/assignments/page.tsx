@@ -35,37 +35,47 @@ export default function DoctorPatientAssignment() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data: aData, error: aError } = await supabase
       .from("doctor_patient_assignments")
-      .select(`
-        *, 
-        doctor:doctor_id ( profiles!inner ( full_name ) ),
-        patient:patient_id ( profiles!inner ( full_name ) )
-      `)
+      .select("*")
       .order("assigned_at", { ascending: false });
 
-    setAssignments((data ?? []).map((r: any) => {
-      const row = r as Record<string, any>;
-      return {
-        ...row,
-        doctor_name:  row.doctor?.profiles?.full_name  ?? "Unknown Doctor",
-        patient_name: row.patient?.profiles?.full_name ?? "Unknown Patient",
-      };
-    }));
+    if (aError) { console.error("assignments load error:", aError.message); setLoading(false); return; }
+
+    const allIds = [...new Set([(aData ?? []).map((r: any) => r.doctor_id), (aData ?? []).map((r: any) => r.patient_id)].flat())];
+    const { data: profData } = allIds.length > 0
+      ? await supabase.from("profiles").select("id, full_name").in("id", allIds)
+      : { data: [] };
+    const profMap: Record<string, string> = {};
+    (profData ?? []).forEach((p: any) => { profMap[p.id] = p.full_name ?? "Unknown"; });
+
+    setAssignments((aData ?? []).map((r: any) => ({
+      ...r,
+      doctor_name:  profMap[r.doctor_id]  ?? "Unknown Doctor",
+      patient_name: profMap[r.patient_id] ?? "Unknown Patient",
+    })));
     setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  // Load user lists for dropdowns
+  // Load user lists for dropdowns — two-query pattern to avoid FK join errors
   useEffect(() => {
     (async () => {
       const [dRes, pRes] = await Promise.all([
-        supabase.from("user_roles").select("user_id, profile:user_id ( full_name )").eq("role", "doctor"),
-        supabase.from("user_roles").select("user_id, profile:user_id ( full_name )").eq("role", "patient"),
+        supabase.from("user_roles").select("user_id").eq("role", "doctor"),
+        supabase.from("user_roles").select("user_id").eq("role", "patient"),
       ]);
-      setDoctors((dRes.data ?? []).map((r: any) => ({ id: r?.user_id, name: r?.profile?.full_name ?? "Doctor" })));
-      setPatients((pRes.data ?? []).map((r: any) => ({ id: r?.user_id, name: r?.profile?.full_name ?? "Patient" })));
+      const doctorIds  = (dRes.data ?? []).map((r: any) => r.user_id);
+      const patientIds = (pRes.data ?? []).map((r: any) => r.user_id);
+      const allIds = [...new Set([...doctorIds, ...patientIds])];
+      const { data: profData } = allIds.length > 0
+        ? await supabase.from("profiles").select("id, full_name").in("id", allIds)
+        : { data: [] };
+      const profMap: Record<string, string> = {};
+      (profData ?? []).forEach((p: any) => { profMap[p.id] = p.full_name ?? "Unknown"; });
+      setDoctors(doctorIds.map((id: string) => ({ id, name: profMap[id] ?? "Doctor" })));
+      setPatients(patientIds.map((id: string) => ({ id, name: profMap[id] ?? "Patient" })));
     })();
   }, []);
 

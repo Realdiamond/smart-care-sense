@@ -94,8 +94,13 @@ export default function UserManagement() {
     }
     setCreating(true);
     try {
+      // Explicitly get the session token so the edge function can verify the caller is an admin
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("You are not logged in. Please refresh the page and try again.");
+
       const { data, error } = await supabase.functions.invoke("admin-create-doctor", {
         body: { full_name: form.full_name, email: form.email, password: form.password, specialty: form.specialty, license_number: form.license_number, years_experience: parseInt(form.years_experience) || 0 },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (error) throw error;
       
@@ -106,19 +111,40 @@ export default function UserManagement() {
         try { parsedData = JSON.parse(text); } catch(e) { parsedData = { error: text }; }
       }
       
+      console.log("🚀 RAW BACKEND RESPONSE:", parsedData);
+      
       if (parsedData && parsedData.error) throw new Error(parsedData.error);
       
       toast.success(parsedData.message);
       setCreateOpen(false);
       setForm({ full_name: "", email: "", password: "", specialty: "General Practice", license_number: "", years_experience: "0" });
       await load();
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) { 
+      console.error("❌ BACKEND ERROR:", e);
+      toast.error(e.message); 
+    }
     setCreating(false);
   };
 
   const handleChangeRole = async (userId: string, newRole: string) => {
     const { error } = await supabase.from("user_roles").update({ role: newRole as any }).eq("user_id", userId);
-    if (error) toast.error("Failed to update role"); else { toast.success("Role updated"); await load(); }
+    if (error) { toast.error("Failed to update role"); return; }
+
+    // When promoting to doctor, ensure a doctor_profiles row exists
+    // so they appear in the Verify Doctors queue
+    if (newRole === "doctor") {
+      await supabase.from("doctor_profiles").upsert({
+        user_id: userId,
+        specialty: "General Practice",
+        license_number: "PENDING",
+        years_experience: 0,
+        is_verified: false,
+        is_accepting_patients: false,
+      }, { onConflict: "user_id" });
+    }
+
+    toast.success("Role updated");
+    await load();
   };
 
   const roleBadge = (role: string) => {

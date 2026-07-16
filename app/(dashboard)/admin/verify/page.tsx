@@ -35,12 +35,28 @@ export default function DoctorVerification() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase
+
+    // Fetch doctor_profiles and profiles separately to avoid FK join issues
+    const { data: dpData, error: dpError } = await supabase
       .from("doctor_profiles")
-      .select(`*, profile:user_id ( full_name )`)
+      .select("*")
       .order("created_at", { ascending: false });
 
-    const all = (data ?? []).map((r: any) => ({ ...r, full_name: r.profile?.full_name ?? null }));
+    if (dpError) {
+      console.error("Failed to load doctor_profiles:", dpError.message);
+      setLoading(false);
+      return;
+    }
+
+    const userIds = (dpData ?? []).map((d: any) => d.user_id);
+    const { data: profilesData } = userIds.length > 0
+      ? await supabase.from("profiles").select("id, full_name").in("id", userIds)
+      : { data: [] };
+
+    const profilesMap: Record<string, string | null> = {};
+    (profilesData ?? []).forEach((p: any) => { profilesMap[p.id] = p.full_name; });
+
+    const all = (dpData ?? []).map((r: any) => ({ ...r, full_name: profilesMap[r.user_id] ?? null }));
     setPending(all.filter((d: any) => !d.is_verified));
     setVerified(all.filter((d: any) => d.is_verified));
     setLoading(false);

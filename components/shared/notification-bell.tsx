@@ -7,6 +7,7 @@ import { Bell, Check, CheckCheck, X, Calendar, AlertTriangle, FileText, MessageC
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/hooks/use-notifications";
+import { useRole } from "@/hooks/use-role";
 import { cn } from "@/lib/utils";
 
 const typeIcon: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -33,9 +34,11 @@ const typeColor: Record<string, string> = {
 
 export function NotificationBell() {
   const { notifications = [], unreadCount = 0, markRead, markAllRead } = useNotifications() || {};
+  const { role } = useRole();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const notifPath = role === "admin" ? "/admin/notifications" : role === "doctor" ? "/doctor/notifications" : "/patient/notifications";
 
   // Close on outside click
   useEffect(() => {
@@ -141,6 +144,15 @@ export function NotificationBell() {
                   );
                 })
               )}
+            </div>
+            {/* Footer */}
+            <div className="px-4 py-2.5 border-t border-border/60">
+              <button
+                onClick={() => { setOpen(false); router.push(notifPath); }}
+                className="w-full text-xs text-primary hover:underline text-center py-1"
+              >
+                View all notifications
+              </button>
             </div>
           </motion.div>
         )}
