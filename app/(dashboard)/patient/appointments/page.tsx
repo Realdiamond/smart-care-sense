@@ -70,15 +70,33 @@ export default function Appointments() {
   useEffect(() => {
     if (!bookOpen) return;
     (async () => {
-      const { data } = await supabase
+      const { data: assignments } = await supabase
         .from("doctor_patient_assignments")
-        .select("doctor_id, doctor:doctor_id ( profiles!inner ( full_name ), doctor_profiles!inner ( specialty ) )")
+        .select("doctor_id")
         .eq("patient_id", user!.id);
-      setDoctors((data ?? []).map((r: any) => ({
-        id: r.doctor_id,
-        name: r.doctor?.profiles?.full_name ?? "Doctor",
-        specialty: r.doctor?.doctor_profiles?.specialty ?? "",
-      })));
+        
+      const doctorIds = (assignments ?? []).map((a: any) => a.doctor_id);
+      
+      if (doctorIds.length > 0) {
+        const [profRes, docProfRes] = await Promise.all([
+          supabase.from("profiles").select("id, full_name").in("id", doctorIds),
+          supabase.from("doctor_profiles").select("user_id, specialty").in("user_id", doctorIds)
+        ]);
+        
+        const profMap: Record<string, string> = {};
+        (profRes.data ?? []).forEach((p: any) => { profMap[p.id] = p.full_name ?? "Doctor"; });
+        
+        const specMap: Record<string, string> = {};
+        (docProfRes.data ?? []).forEach((p: any) => { specMap[p.user_id] = p.specialty ?? ""; });
+
+        setDoctors(doctorIds.map(id => ({
+          id,
+          name: profMap[id] ?? "Doctor",
+          specialty: specMap[id] ?? ""
+        })));
+      } else {
+        setDoctors([]);
+      }
     })();
   }, [bookOpen, user]);
 

@@ -85,17 +85,24 @@ export default function Messages() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
+      const { data: assignment } = await supabase
         .from("doctor_patient_assignments")
-        .select("doctor_id, doctor:doctor_id ( profiles!inner ( full_name ), doctor_profiles!inner ( specialty ) )")
+        .select("doctor_id")
         .eq("patient_id", user.id)
         .eq("is_primary", true)
         .maybeSingle();
-      if (data) {
+        
+      if (assignment) {
+        const docId = assignment.doctor_id;
+        const [profRes, docProfRes] = await Promise.all([
+          supabase.from("profiles").select("full_name").eq("id", docId).maybeSingle(),
+          supabase.from("doctor_profiles").select("specialty").eq("user_id", docId).maybeSingle()
+        ]);
+        
         setDoctor({
-          id: data.doctor_id,
-          name: (data as any).doctor?.profiles?.full_name ?? "Doctor",
-          specialty: (data as any).doctor?.doctor_profiles?.specialty ?? "",
+          id: docId,
+          name: profRes.data?.full_name ?? "Doctor",
+          specialty: docProfRes.data?.specialty ?? "",
         });
       }
       setLoading(false);
