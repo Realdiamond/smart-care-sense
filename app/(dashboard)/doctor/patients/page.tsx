@@ -42,18 +42,20 @@ export default function PatientList() {
       // Get assigned patients with their profiles
       const { data: assignments } = await supabase
         .from("doctor_patient_assignments")
-        .select(`
-          patient_id, assigned_at,
-          patient:patient_id (
-            profiles!inner ( full_name, date_of_birth, blood_type, medical_conditions )
-          )
-        `)
+        .select("patient_id, assigned_at")
         .eq("doctor_id", user.id);
 
       if (!assignments) { setLoading(false); return; }
 
-      // Get alert counts per patient
       const patientIds = assignments.map((a: any) => a.patient_id);
+      
+      const { data: profData } = patientIds.length > 0
+        ? await supabase.from("profiles").select("id, full_name, date_of_birth, blood_type, medical_conditions").in("id", patientIds)
+        : { data: [] };
+      const profMap: Record<string, any> = {};
+      (profData ?? []).forEach((p: any) => { profMap[p.id] = p; });
+
+      // Get alert counts per patient
       const { data: alerts } = patientIds.length > 0
         ? await supabase.from("emergency_alerts").select("patient_id").in("patient_id", patientIds).eq("status", "triggered")
         : { data: [] };
@@ -70,7 +72,7 @@ export default function PatientList() {
       }
 
       setPatients(assignments.map((a: any) => {
-        const p = (a as any).patient?.profiles ?? {};
+        const p = profMap[a.patient_id] ?? {};
         const dob = p.date_of_birth ? new Date(p.date_of_birth) : null;
         const age = dob ? Math.floor((Date.now() - dob.getTime()) / 3.15576e10) : null;
         return {

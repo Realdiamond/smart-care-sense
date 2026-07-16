@@ -55,8 +55,6 @@ export default function UserManagement() {
       const profilesMap: Record<string, string | null> = {};
       (profilesRes.data ?? []).forEach((p: any) => { profilesMap[p.id] = p.full_name; });
 
-      console.log("DEBUG - user_roles:", rolesRes.data);
-      console.log("DEBUG - profiles:", profilesRes.data);
 
       // Also get verification status for doctors
       const doctorIds = rolesRes.data.filter((r: any) => r.role === "doctor").map((r: any) => r.user_id);
@@ -110,8 +108,6 @@ export default function UserManagement() {
         const text = await data.text();
         try { parsedData = JSON.parse(text); } catch(e) { parsedData = { error: text }; }
       }
-      
-      console.log("🚀 RAW BACKEND RESPONSE:", parsedData);
       
       if (parsedData && parsedData.error) throw new Error(parsedData.error);
       

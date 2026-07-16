@@ -42,20 +42,20 @@ export default function DoctorAlerts() {
 
   const load = async () => {
     if (!user) return;
-    const { data, error } = await supabase
+    const { data: alertData, error } = await supabase
       .from("emergency_alerts")
-      .select(`
-        *,
-        patient:patient_id ( profiles!inner ( full_name ) )
-      `)
+      .select("*")
       .eq("doctor_id", user.id)
       .order("created_at", { ascending: false })
       .limit(50);
-    if (!error) {
-      setAlerts((data ?? []).map((a: any) => ({
-        ...a,
-        patient_name: a.patient?.profiles?.full_name ?? "Unknown Patient",
-      })));
+    if (!error && alertData) {
+      const pids = [...new Set(alertData.map((a: any) => a.patient_id))];
+      const { data: profData } = pids.length > 0
+        ? await supabase.from("profiles").select("id, full_name").in("id", pids)
+        : { data: [] };
+      const pm: Record<string, string> = {};
+      (profData ?? []).forEach((p: any) => { pm[p.id] = p.full_name ?? "Unknown"; });
+      setAlerts(alertData.map((a: any) => ({ ...a, patient_name: pm[a.patient_id] ?? "Unknown Patient" })));
     }
     setLoading(false);
   };

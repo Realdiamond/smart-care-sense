@@ -71,14 +71,20 @@ export default function WeeklyReports() {
 
   const load = useCallback(async () => {
     if (!user) return;
-    const { data, error } = await supabase
+    const { data: rData, error } = await supabase
       .from("weekly_vital_reports")
-      .select(`*, patient:patient_id ( profiles!inner ( full_name ) )`)
+      .select("*")
       .eq("doctor_id", user.id)
       .order("report_week_start", { ascending: false })
       .limit(50);
-    if (!error) {
-      setReports((data ?? []).map((r: any) => ({ ...r, patient_name: r.patient?.profiles?.full_name ?? "Unknown" })));
+    if (!error && rData) {
+      const pids = [...new Set(rData.map((r: any) => r.patient_id))];
+      const { data: profData } = pids.length > 0
+        ? await supabase.from("profiles").select("id, full_name").in("id", pids)
+        : { data: [] };
+      const pm: Record<string, string> = {};
+      (profData ?? []).forEach((p: any) => { pm[p.id] = p.full_name ?? "Unknown"; });
+      setReports(rData.map((r: any) => ({ ...r, patient_name: pm[r.patient_id] ?? "Unknown" })));
     }
     setLoading(false);
   }, [user]);
@@ -88,11 +94,17 @@ export default function WeeklyReports() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
+      const { data: aData } = await supabase
         .from("doctor_patient_assignments")
-        .select("patient_id, patient:patient_id ( profiles!inner ( full_name ) )")
+        .select("patient_id")
         .eq("doctor_id", user.id);
-      setPatients((data ?? []).map((r: any) => ({ id: r.patient_id, name: r.patient?.profiles?.full_name ?? "Patient" })));
+      const pids = (aData ?? []).map((r: any) => r.patient_id);
+      const { data: profData } = pids.length > 0
+        ? await supabase.from("profiles").select("id, full_name").in("id", pids)
+        : { data: [] };
+      const pm: Record<string, string> = {};
+      (profData ?? []).forEach((p: any) => { pm[p.id] = p.full_name ?? "Patient"; });
+      setPatients(pids.map((id: string) => ({ id, name: pm[id] ?? "Patient" })));
     })();
   }, [user]);
 
