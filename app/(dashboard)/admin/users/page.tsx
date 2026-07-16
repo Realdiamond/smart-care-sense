@@ -108,11 +108,11 @@ export default function UserManagement() {
       
       if (parsedData && parsedData.error) throw new Error(parsedData.error);
       
-      toast.success(`Doctor account created for ${form.email}`);
+      toast.success(parsedData.message);
       setCreateOpen(false);
       setForm({ full_name: "", email: "", password: "", specialty: "General Practice", license_number: "", years_experience: "0" });
       await load();
-    } catch (e: any) { toast.error(e.message ?? "Failed to create doctor"); }
+    } catch (e: any) { toast.error(e.message); }
     setCreating(false);
   };
 

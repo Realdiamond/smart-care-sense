@@ -99,7 +99,7 @@ serve(async (req) => {
       );
     }
 
-    return new Response(JSON.stringify({ success: true, user_id: newUserId, email }), {
+    return new Response(JSON.stringify({ success: true, message: `Successfully created doctor account for ${email}`, user_id: newUserId, email }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
