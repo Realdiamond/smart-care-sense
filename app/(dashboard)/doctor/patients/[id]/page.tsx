@@ -49,7 +49,7 @@ export default function PatientDetail() {
   const [rxForm, setRxForm]     = useState({ medication: "", dosage: "", frequency: "", start_date: new Date().toISOString().slice(0,10), end_date: "", instructions: "", refills: "0" });
   const [rxSaving, setRxSaving] = useState(false);
 
-  useEffect(() => { document.title = "Patient Detail — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Patient Detail — KennyPulse"; }, []);
 
   useEffect(() => {
     if (!user || !patientId) return;

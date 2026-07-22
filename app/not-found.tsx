@@ -13,7 +13,7 @@ export default function NotFound() {
         </div>
         <h1 className="text-6xl font-bold text-gradient-primary mb-2">404</h1>
         <p className="text-lg text-muted-foreground mb-6">
-          This page doesn't exist in the HealthPulse system.
+          This page doesn't exist in the KennyPulse system.
         </p>
         <Link
           href="/"

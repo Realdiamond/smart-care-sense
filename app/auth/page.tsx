@@ -98,7 +98,7 @@ export default function AuthPage() {
               <HeartPulse className="h-7 w-7 text-vital-foreground heartbeat" />
             </div>
           </div>
-          <h1 className="text-3xl font-semibold text-gradient-primary">HealthPulse</h1>
+          <h1 className="text-3xl font-semibold text-gradient-primary">KennyPulse</h1>
           <p className="text-sm text-muted-foreground">Your vitals. Intelligently monitored.</p>
         </div>
 

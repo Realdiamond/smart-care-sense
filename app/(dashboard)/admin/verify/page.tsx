@@ -31,7 +31,7 @@ export default function DoctorVerification() {
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState<Record<string, string>>({});
 
-  useEffect(() => { document.title = "Doctor Verification — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Doctor Verification — KennyPulse"; }, []);
 
   const load = async () => {
     setLoading(true);

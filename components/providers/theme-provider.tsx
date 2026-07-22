@@ -24,7 +24,7 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 });
 
-const STORAGE_KEY = "healthpulse-theme";
+const STORAGE_KEY = "kennypulse-theme";
 
 function systemTheme(): "dark" | "light" {
   if (typeof window === "undefined") return "light";

@@ -31,7 +31,7 @@ export default function DoctorPatientAssignment() {
   const [saving, setSaving] = useState(false);
   const [filterDoctor, setFilterDoctor] = useState("all");
 
-  useEffect(() => { document.title = "Assignments — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Assignments — KennyPulse"; }, []);
 
   const load = useCallback(async () => {
     setLoading(true);

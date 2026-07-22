@@ -82,15 +82,15 @@ serve(async (req) => {
             <p style="margin:0;font-size:14px">Immediate attention may be required.</p>
           </div>
           <p>Dear Dr. ${docProfile?.full_name ?? ""},</p>
-          <p><strong>${patName}</strong> has triggered an emergency health alert on HealthPulse.</p>
+          <p><strong>${patName}</strong> has triggered an emergency health alert on KennyPulse.</p>
           <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f9fafb;border-radius:8px">
             <tr><td style="padding:10px 16px;font-weight:600">Patient</td><td style="padding:10px 16px">${patName}</td></tr>
             <tr><td style="padding:10px 16px;font-weight:600">Alert</td><td style="padding:10px 16px">${message}</td></tr>
             ${metric_type ? `<tr><td style="padding:10px 16px;font-weight:600">Metric</td><td style="padding:10px 16px">${metric_type.replace(/_/g," ")}: <strong>${metric_value}</strong></td></tr>` : ""}
             <tr><td style="padding:10px 16px;font-weight:600">Time</td><td style="padding:10px 16px">${new Date().toLocaleString()}</td></tr>
           </table>
-          <a href="${Deno.env.get("SUPABASE_URL")?.replace(".supabase.co","")}/doctor/alerts" style="display:inline-block;padding:12px 24px;background:#059669;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">View Alert in HealthPulse</a>
-          <p style="margin-top:24px;font-size:12px;color:#9ca3af">This is an automated emergency notification from HealthPulse. Do not reply to this email.</p>
+          <a href="${Deno.env.get("SUPABASE_URL")?.replace(".supabase.co","")}/doctor/alerts" style="display:inline-block;padding:12px 24px;background:#059669;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">View Alert in KennyPulse</a>
+          <p style="margin-top:24px;font-size:12px;color:#9ca3af">This is an automated emergency notification from KennyPulse. Do not reply to this email.</p>
           <p style="font-size:11px;color:#d1d5db">⚠️ This is not a substitute for emergency services. If the patient is in immediate danger, please call 999/911.</p>
         </body></html>`;
 
@@ -98,7 +98,7 @@ serve(async (req) => {
           method: "POST",
           headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            from:    "HealthPulse Alerts <alerts@healthpulse.app>",
+            from:    "KennyPulse Alerts <alerts@kennypulse.app>",
             to:      [doctorEmail],
             subject: `🚨 Emergency Alert — ${patName} needs attention`,
             html,

@@ -20,7 +20,7 @@ export default function Prescriptions() {
   const [tab, setTab] = useState<"active" | "all">("active");
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  useEffect(() => { document.title = "Prescriptions — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Prescriptions — KennyPulse"; }, []);
 
   const load = useCallback(async () => {
     if (!user) return;

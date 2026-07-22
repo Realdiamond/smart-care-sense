@@ -4,13 +4,13 @@ import { Download, HeartPulse, Watch, ShieldCheck, Activity } from "lucide-react
 import { APK_DOWNLOAD_URL, LATEST_APP_VERSION } from "@/lib/app-download";
 
 export const metadata: Metadata = {
-  title: "Get the App — HealthPulse",
-  description: "Download the Smart Care Android app to sync your Oraimo watch vitals to your HealthPulse dashboard.",
+  title: "Get the App — KennyPulse",
+  description: "Download the Smart Care Android app to sync your Oraimo watch vitals to your KennyPulse dashboard.",
 };
 
 const STEPS = [
   { icon: Download, title: "Install the app", body: "Download the APK below and install it on the Android phone paired with your Oraimo watch." },
-  { icon: ShieldCheck, title: "Log in & allow access", body: "Sign in with your HealthPulse account and grant Health Connect permission." },
+  { icon: ShieldCheck, title: "Log in & allow access", body: "Sign in with your KennyPulse account and grant Health Connect permission." },
   { icon: Activity, title: "Vitals sync automatically", body: "Wear your watch — heart rate, SpO₂, steps and more appear on your dashboard." },
 ];
 
@@ -23,7 +23,7 @@ export default function DownloadPage() {
           <div className="h-10 w-10 rounded-full bg-gradient-vital flex items-center justify-center">
             <HeartPulse className="h-5 w-5 text-vital-foreground" />
           </div>
-          <span className="text-lg font-semibold text-gradient-primary">HealthPulse</span>
+          <span className="text-lg font-semibold text-gradient-primary">KennyPulse</span>
         </div>
 
         {/* Hero */}
@@ -31,7 +31,7 @@ export default function DownloadPage() {
           <Watch className="h-4 w-4" /> Android companion app
         </div>
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
-          Sync your Oraimo watch to <span className="text-gradient-primary">HealthPulse</span>.
+          Sync your Oraimo watch to <span className="text-gradient-primary">KennyPulse</span>.
         </h1>
         <p className="text-muted-foreground text-base mb-8 max-w-xl">
           The Smart Care app reads your watch&apos;s vitals from Android Health Connect and streams them to your care

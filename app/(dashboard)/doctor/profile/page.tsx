@@ -25,7 +25,7 @@ export default function DoctorProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { document.title = "My Profile — HealthPulse"; }, []);
+  useEffect(() => { document.title = "My Profile — KennyPulse"; }, []);
 
   useEffect(() => {
     if (!user) return;

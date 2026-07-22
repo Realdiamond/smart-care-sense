@@ -38,7 +38,7 @@ export default function DoctorAlerts() {
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState<Record<string, string>>({});
 
-  useEffect(() => { document.title = "Patient Alerts — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Patient Alerts — KennyPulse"; }, []);
 
   const load = async () => {
     if (!user) return;

@@ -28,7 +28,7 @@ type SystemSettings = {
 };
 
 const DEFAULTS: SystemSettings = {
-  platform_name: "HealthPulse",
+  platform_name: "KennyPulse",
   allow_patient_signup: true,
   require_doctor_verification: true,
   auto_weekly_reports: true,
@@ -47,7 +47,7 @@ export default function SystemSettings() {
 
   // ── Load from DB on mount ──────────────────────────────────
   useEffect(() => {
-    document.title = "System Settings — HealthPulse";
+    document.title = "System Settings — KennyPulse";
 
     supabase
       .from("system_settings")

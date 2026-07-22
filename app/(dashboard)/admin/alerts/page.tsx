@@ -35,7 +35,7 @@ export default function PlatformAlerts() {
   const [search, setSearch] = useState("");
   const [severityFilter, setSeverityFilter] = useState("all");
 
-  useEffect(() => { document.title = "Platform Alerts — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Platform Alerts — KennyPulse"; }, []);
 
   const load = async () => {
     setLoading(true);

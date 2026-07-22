@@ -1,6 +1,6 @@
-# 🏥 Smart Care Sense (HealthPulse)
+# 🏥 Smart Care Sense (KennyPulse)
 
-![HealthPulse Banner](https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=1200&h=400)
+![KennyPulse Banner](https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=1200&h=400)
 
 **Smart Care Sense** is a clinical-grade, real-time health monitoring platform. It bridges the gap between wearable IoT devices and AI-driven clinical insights, wrapped in a premium, glassmorphism-inspired interface.
 
@@ -11,7 +11,7 @@
 - 💓 **Live Vitals Streaming**: Real-time monitoring of Heart Rate (BPM), SpO2, Blood Pressure, and Activity.
 - 📈 **Dynamic ECG Monitoring**: Live SVG-based ECG wave visualization with heartbeat synchronization.
 - 🤖 **AI Health Assistant**: Personalized wellness insights powered by trending health data.
-- 🎨 **Premium "HealthPulse" Design**: A custom design system built on Midnight Teal backgrounds with Oxygen Mint and Vital Coral accents.
+- 🎨 **Premium "KennyPulse" Design**: A custom design system built on Midnight Teal backgrounds with Oxygen Mint and Vital Coral accents.
 - 🔐 **Role-Based Access**: Specialized dashboard views for **Patients**, **Doctors**, and **Administrators**.
 
 ---

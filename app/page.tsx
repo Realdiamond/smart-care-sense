@@ -36,7 +36,7 @@ function Landing() {
           <div className="h-9 w-9 rounded-full bg-gradient-vital flex items-center justify-center">
             <HeartPulse className="h-5 w-5 text-vital-foreground" />
           </div>
-          <span className="text-lg font-semibold text-gradient-primary">HealthPulse</span>
+          <span className="text-lg font-semibold text-gradient-primary">KennyPulse</span>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/auth?mode=login" className="text-sm px-4 py-2 rounded-lg hover:bg-secondary transition-colors">Log in</Link>
@@ -53,7 +53,7 @@ function Landing() {
           Your vitals, your care team, <span className="text-gradient-primary">in real time.</span>
         </h1>
         <p className="text-muted-foreground text-base md:text-lg mt-6 max-w-xl mx-auto">
-          HealthPulse turns your Oraimo watch into a continuous health monitor — tracked, understood, and shared with the people who care for you.
+          KennyPulse turns your Oraimo watch into a continuous health monitor — tracked, understood, and shared with the people who care for you.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4 mt-9">
           <Link href="/auth" className="inline-flex items-center gap-2 rounded-xl bg-gradient-primary text-primary-foreground px-6 py-3 font-medium hover:opacity-90">
@@ -81,7 +81,7 @@ function Landing() {
       {/* Footer */}
       <footer className="border-t border-border">
         <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
-          <span>© {new Date().getFullYear()} HealthPulse · Smart Care Sense</span>
+          <span>© {new Date().getFullYear()} KennyPulse · Smart Care Sense</span>
           <div className="flex items-center gap-4">
             <Link href="/auth" className="hover:text-foreground">Log in</Link>
             <Link href="/download" className="hover:text-foreground">Download app</Link>

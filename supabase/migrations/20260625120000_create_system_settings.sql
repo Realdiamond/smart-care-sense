@@ -6,7 +6,7 @@
 
 create table if not exists public.system_settings (
   id                                integer  primary key default 1 check (id = 1),
-  platform_name                     text     not null default 'HealthPulse',
+  platform_name                     text     not null default 'KennyPulse',
   allow_patient_signup              boolean  not null default true,
   require_doctor_verification       boolean  not null default true,
   auto_weekly_reports               boolean  not null default true,

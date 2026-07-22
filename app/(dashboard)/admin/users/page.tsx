@@ -40,7 +40,7 @@ export default function UserManagement() {
   // Doctor creation form
   const [form, setForm] = useState({ full_name: "", email: "", password: "", specialty: "General Practice", license_number: "", years_experience: "0" });
 
-  useEffect(() => { document.title = "User Management — HealthPulse"; }, []);
+  useEffect(() => { document.title = "User Management — KennyPulse"; }, []);
 
   const load = useCallback(async () => {
     setLoading(true);

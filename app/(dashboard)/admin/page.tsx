@@ -21,7 +21,7 @@ export default function AdminDashboard() {
   const [activityData, setActivityData] = useState<{ day: string; alerts: number; appointments: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { document.title = "Admin Dashboard — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Admin Dashboard — KennyPulse"; }, []);
 
   useEffect(() => {
     (async () => {

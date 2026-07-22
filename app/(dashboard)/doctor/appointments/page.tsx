@@ -26,7 +26,7 @@ export default function DoctorAppointments() {
   const [tab, setTab] = useState<"pending" | "upcoming" | "past" | "all">("pending");
   const [notes, setNotes] = useState<Record<string, string>>({});
 
-  useEffect(() => { document.title = "Appointments — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Appointments — KennyPulse"; }, []);
 
   const load = useCallback(async () => {
     if (!user) return;

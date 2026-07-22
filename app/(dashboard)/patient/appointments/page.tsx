@@ -43,7 +43,7 @@ export default function Appointments() {
   const [booking, setBooking] = useState(false);
   const [calMonth, setCalMonth] = useState(() => new Date());
 
-  useEffect(() => { document.title = "Appointments — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Appointments — KennyPulse"; }, []);
 
   const load = useCallback(async () => {
     if (!user) return;

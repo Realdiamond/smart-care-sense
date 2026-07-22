@@ -24,7 +24,7 @@ export default function DoctorDashboard() {
   const [recentAlerts, setRecentAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { document.title = "Doctor Dashboard — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Doctor Dashboard — KennyPulse"; }, []);
 
   useEffect(() => {
     if (!user) return;

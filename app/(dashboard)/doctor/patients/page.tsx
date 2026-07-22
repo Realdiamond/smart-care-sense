@@ -34,7 +34,7 @@ export default function PatientList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  useEffect(() => { document.title = "My Patients — HealthPulse"; }, []);
+  useEffect(() => { document.title = "My Patients — KennyPulse"; }, []);
 
   useEffect(() => {
     if (!user) return;

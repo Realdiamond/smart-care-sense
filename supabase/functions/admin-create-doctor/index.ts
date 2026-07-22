@@ -80,7 +80,7 @@ serve(async (req) => {
     await supabase.from("notifications").insert({
       user_id: newUserId,
       type: "system",
-      title: "Welcome to HealthPulse! 👋",
+      title: "Welcome to KennyPulse! 👋",
       body: `Your doctor account has been created by an administrator. Your account is pending verification. Once verified, you'll have full access to your dashboard.`,
     });
 

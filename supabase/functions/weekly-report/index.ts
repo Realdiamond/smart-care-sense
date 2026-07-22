@@ -164,7 +164,7 @@ serve(async (req) => {
             .join("");
 
           const html = `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;padding:32px;color:#111;max-width:600px">
-            <h2 style="color:#059669">HealthPulse — Weekly Vital Report</h2>
+            <h2 style="color:#059669">KennyPulse — Weekly Vital Report</h2>
             <p>Dear Dr. ${docProfile?.full_name ?? ""},</p>
             <p><strong>${patName}</strong>'s weekly vital report (${reportWeekStart}) is ready.</p>
             <p>${summaryText}</p>
@@ -172,14 +172,14 @@ serve(async (req) => {
               <thead><tr style="background:#f0fdf4"><th style="padding:8px 12px;text-align:left">Metric</th><th>Avg</th><th>Min</th><th>Max</th><th>Readings</th></tr></thead>
               <tbody>${metricRows}</tbody>
             </table>
-            <p style="margin-top:24px;font-size:12px;color:#9ca3af">This is an automated report from HealthPulse. Log in to view full details.</p>
+            <p style="margin-top:24px;font-size:12px;color:#9ca3af">This is an automated report from KennyPulse. Log in to view full details.</p>
           </body></html>`;
 
           await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({
-              from: "HealthPulse Reports <reports@healthpulse.app>",
+              from: "KennyPulse Reports <reports@kennypulse.app>",
               to:   [doctorEmail],
               subject: `Weekly Vital Report — ${patName}`,
               html,

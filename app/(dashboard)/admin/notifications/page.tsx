@@ -36,7 +36,7 @@ const typeColor: Record<string, string> = {
 export default function NotificationsPage() {
   const { notifications = [], unreadCount = 0, markRead, markAllRead, loading } = useNotifications() || {};
 
-  useEffect(() => { document.title = "Notifications — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Notifications — KennyPulse"; }, []);
 
   return (
     <AppShell>

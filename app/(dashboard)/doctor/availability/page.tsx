@@ -27,7 +27,7 @@ export default function DoctorAvailability() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { document.title = "Availability — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Availability — KennyPulse"; }, []);
 
   useEffect(() => {
     if (!user) return;

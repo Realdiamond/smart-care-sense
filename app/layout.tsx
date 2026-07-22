@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "HealthPulse — Smart Care Sense",
+  title: "KennyPulse — Smart Care Sense",
   description:
     "AI-powered healthcare monitoring platform. Track vitals, manage appointments, and communicate with your care team.",
   keywords: ["health", "vitals", "monitoring", "healthcare", "AI", "telemedicine"],
@@ -23,7 +23,7 @@ export default function RootLayout({
         {/* Apply theme before paint to avoid a flash of the wrong colors. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('healthpulse-theme')||'light';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.add(d?'dark':'light');}catch(e){document.documentElement.classList.add('light');}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('kennypulse-theme')||'light';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.add(d?'dark':'light');}catch(e){document.documentElement.classList.add('light');}})();`,
           }}
         />
       </head>

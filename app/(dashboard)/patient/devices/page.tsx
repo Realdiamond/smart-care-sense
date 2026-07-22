@@ -59,7 +59,7 @@ const Devices = () => {
   const [issuedKey, setIssuedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => { document.title = "Connect your watch — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Connect your watch — KennyPulse"; }, []);
 
   const load = async () => {
     setLoading(true);

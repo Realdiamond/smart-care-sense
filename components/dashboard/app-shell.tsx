@@ -56,7 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div>
-            <div className="text-base font-semibold leading-none text-gradient-primary">HealthPulse</div>
+            <div className="text-base font-semibold leading-none text-gradient-primary">KennyPulse</div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">{roleLabel}</div>
           </div>
         </div>
@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <HeartPulse className="h-4 w-4 text-vital-foreground heartbeat" />
             </div>
             <div>
-              <span className="font-semibold text-sm text-gradient-primary">HealthPulse</span>
+              <span className="font-semibold text-sm text-gradient-primary">KennyPulse</span>
               <span className="ml-1.5 text-[10px] text-muted-foreground uppercase tracking-wider">{roleLabel}</span>
             </div>
           </div>

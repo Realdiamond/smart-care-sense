@@ -20,7 +20,7 @@ export default function PlatformAnalytics() {
   const [dailySignups, setDailySignups]   = useState<{ day: string; users: number }[]>([]);
   const [stats, setStats] = useState({ totalUsers: 0, totalAppointments: 0, totalAlerts: 0, totalPrescriptions: 0 });
 
-  useEffect(() => { document.title = "Analytics — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Analytics — KennyPulse"; }, []);
 
   useEffect(() => {
     (async () => {

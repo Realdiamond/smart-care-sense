@@ -70,7 +70,7 @@ export default function Messages() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const convId = doctor ? conversationId(user!.id, doctor.id) : null;
 
-  useEffect(() => { document.title = "Messages — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Messages — KennyPulse"; }, []);
 
   // Track online status
   useEffect(() => {

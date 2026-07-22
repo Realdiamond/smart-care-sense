@@ -45,13 +45,13 @@ function downloadReportPDF(report: Report) {
   <style>body{font-family:system-ui,sans-serif;padding:40px;color:#111}h1{font-size:24px;margin-bottom:4px}
   table{width:100%;border-collapse:collapse;margin-top:20px}th{background:#f3f4f6;padding:10px 12px;text-align:left;font-size:13px}
   td{font-size:13px}</style></head><body>
-  <h1>HealthPulse — Weekly Vital Report</h1>
+  <h1>KennyPulse — Weekly Vital Report</h1>
   <p><strong>Patient:</strong> ${report.patient_name ?? "—"}</p>
   <p><strong>Week of:</strong> ${weekOf}</p>
   <p><strong>Generated:</strong> ${new Date(report.generated_at).toLocaleString()}</p>
   ${report.summary_text ? `<p style="margin-top:16px;padding:12px;background:#f0fdf4;border-left:4px solid #22c55e;border-radius:4px">${report.summary_text}</p>` : ""}
   <table><thead><tr><th>Metric</th><th>Average</th><th>Min</th><th>Max</th><th>Readings</th></tr></thead><tbody>${rows}</tbody></table>
-  <p style="margin-top:24px;font-size:11px;color:#9ca3af">This report was generated automatically by HealthPulse. Not a substitute for professional clinical judgment.</p>
+  <p style="margin-top:24px;font-size:11px;color:#9ca3af">This report was generated automatically by KennyPulse. Not a substitute for professional clinical judgment.</p>
   </body></html>`;
 
   const win = window.open("", "_blank");
@@ -67,7 +67,7 @@ export default function WeeklyReports() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState<string | null>(null);
 
-  useEffect(() => { document.title = "Weekly Reports — HealthPulse"; }, []);
+  useEffect(() => { document.title = "Weekly Reports — KennyPulse"; }, []);
 
   const load = useCallback(async () => {
     if (!user) return;
